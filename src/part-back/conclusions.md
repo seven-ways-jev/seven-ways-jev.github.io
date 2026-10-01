@@ -1,4 +1,4 @@
-# Conclusion
+# Conclusions
 
 Seven domains. Seven notebooks. The same pattern every time: structured state in, typed decision out, confidence score alongside.
 
