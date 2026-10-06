@@ -105,8 +105,8 @@ One Jev call per post, completing in well under a second each. Twenty posts proc
 
 The three-option structure is correct in theory but the confidence score is the more reliable signal in practice. Rather than routing purely on the decision (Approve / Flag / Remove), a production moderation system should route on decision and confidence together:
 
-- **Remove at any confidence**: act immediately
-- **Approve above the threshold**: publish immediately
-- **Anything below the threshold**: route to human review regardless of decision
+- **Remove above the confidence threshold**: remove immediately
+- **Approve above the confidence threshold**: publish immediately
+- **Anything below the confidence threshold, regardless of decision**: route to human review
 
 This reframes Flag not as a specific outcome but as a proxy for "confidence below threshold" -- and the confidence score makes that threshold explicit and tunable.
