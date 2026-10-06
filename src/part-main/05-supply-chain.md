@@ -6,7 +6,7 @@ A disruption hits your primary supplier. A port strike, a factory fire, an expor
 
 Rules-based fallback logic -- activate Supplier B if Supplier A is down -- works for simple scenarios. It breaks when the alternatives themselves are partially compromised, when you need to weigh trade-offs between cost and speed or when the disruption affects an entire region and your fallback suppliers share the same risk.
 
-This chapter uses Jev to select the best available alternative supplier when a primary supplier is disrupted. One `Choice` call per disruption scenario, with the full current state of each alternative supplier in the criteria. The confidence score reflects how clear-cut the choice is -- high when one alternative stands out, lower when the alternatives are close or all partially compromised.
+This chapter uses Jev to select the best available alternative supplier when a primary supplier is disrupted. One `Choice` call per disruption scenario, with the full current state of each alternative supplier in the criteria. The confidence score indicates how certain Jev is about its choice, which may not correspond to how difficult the supplier situation appears from the outside.
 
 ## The Setup
 
