@@ -4,8 +4,8 @@
 
 The London Underground's Northern line presents a genuine decision problem. Between Kennington and Euston the line splits into two branches that don't share a single station until they both reach Euston:
 
-- **Via Charing Cross** (8 stops): a slightly shorter route running through the West End
-- **Via Bank** (9 stops): a slightly longer route running through the City
+- **Via Charing Cross** (8 hops): a slightly shorter route running through the West End
+- **Via Bank** (9 hops): a slightly longer route running through the City
 
 On a quiet day with both branches running normally, the right choice is obvious: take Charing Cross, it's one stop shorter. But the moment something goes wrong on the network, the right choice depends on live information that a static algorithm doesn't have.
 
@@ -39,17 +39,19 @@ The key point: `shortest_path()` is exact and context-naive by design. It finds 
 
 ### What happened
 
-Across multiple northbound runs from Kennington to Euston, Jev consistently chose the **Bank branch** -- 9 hops every time, even though the Charing Cross branch is one stop shorter. Hop-1 confidence was consistently low throughout.
+Across multiple northbound runs from Kennington to Euston, Jev consistently chose the **Bank branch** -- 9 hops every time, even though the Charing Cross branch is one stop shorter. Hop-1 confidence was consistently low, between 0.31 and 0.37.
 
-We then injected a disruption. At Leicester Square, four stops into the Charing Cross route, the incident note reported Warren Street suspended ahead. The hypothesis was that Jev might decide to push on toward the disruption or backtrack and reroute via Bank. Instead, it made no change at all. Same Bank branch, same 9 hops, same confidence range -- because it had already committed to Bank at Kennington before Leicester Square was ever in the path.
+We then repeated the northbound runs with a note saying Warren Street was suspended, present from the first hop. The choice didn't change: Bank every time, 9 hops. Only confidence moved, with hop-1 falling from 0.31 to 0.37 down to 0.17 to 0.24. A softer note about a 10-minute delay produced almost the same range, so Jev didn't separate a brief delay from a suspension. To test the mid-journey case we seeded the route to Leicester Square. With no incident, all five runs pushed on to Tottenham Court Road and finished in 8 hops. With Warren Street suspended, all five still pushed on and none backtracked. Hop-1 confidence dropped from 0.91 to 0.93 down to 0.61 to 0.72, and the journeys took 11 to 16 hops instead of 8. One of them left the Northern line.
 
-The reverse journey (Euston to Kennington, southbound) was more consistent but in the opposite direction: Charing Cross branch every time, with noticeably higher confidence. The same network, the same graph, a different direction and a different stable preference. That directional asymmetry is almost certainly a training data artifact, not geographic reasoning.
+The reverse journey (Euston to Kennington, southbound) went the opposite way. All five runs took the Charing Cross branch. Hop-1 confidence was lower than northbound (0.15 to 0.23 against 0.31 to 0.37). The same network gave a different preference in each direction, which is almost certainly a training data artifact, not geographic reasoning.
 
-The most revealing experiment was starting from Waterloo, which sits on the Charing Cross branch with no fork to navigate. Without the anchor of a clear branch decision, hop counts varied widely across 5 runs and confidence dropped significantly. The structured problem that had produced consistent results at Kennington became underdetermined when the framing changed.
+Starting from Waterloo, which sits on the Charing Cross branch with no fork to navigate, gave a different picture. All five runs followed the same seven-hop Northern line route to Euston, but hop-1 confidence was lower than at Kennington, between 0.22 and 0.29. Unconstrained, NetworkX finds a five-hop route across other lines, so Jev stayed on the line every time but with little confidence in each step.
 
 ### What this tells us
 
-TypeSafe are explicit about what Jev is designed for: fast, atomic, well-scoped judgments -- "the kind a highly knowledgeable person could make in a few seconds given the right context." A nine-hop sequential plan isn't that. It's a planning problem, and `shortest_path()` solves planning problems in under a millisecond.
+TypeSafe are explicit about what Jev is designed for: fast, atomic, well-scoped judgments -- "the kind of judgment a highly knowledgeable person could make in a few seconds given the right context." A nine-hop sequential plan isn't that. It's a planning problem, and `shortest_path()` solves planning problems in under a millisecond.
+
+The mid-journey test makes the point sharply: Jev registered the suspension in its confidence but didn't change course.
 
 None of this is a criticism of Jev. It's a mismatch between problem shape and tool design.
 
@@ -68,13 +70,13 @@ We run this across four disruption severities, three times each:
 | Severe: Warren Street suspended | Bank | Yes |
 | Critical: Warren Street and Goodge Street out | Bank | Yes |
 
-This is exactly the behavior TypeSafe describe. With both branches clear, Jev chose Charing Cross -- the shorter route -- with solid confidence. A 5-minute delay on a station that can't be bypassed was enough to flip the decision to Bank and confidence rose because the signal got clearer. A full suspension produced even higher confidence and two suspended stations produced the highest confidence of all. Every run was unanimous. Latency was well under 500 milliseconds per call -- a fraction of the time the sequential pathfinder took per complete journey.
+This is exactly the behavior TypeSafe describe. With both branches clear, Jev chose Charing Cross -- the shorter route -- with moderate confidence. A 5-minute delay on a station that can't be bypassed was enough to flip the decision to Bank and confidence rose because the signal got clearer. A full suspension produced even higher confidence and two suspended stations produced the highest confidence of all. Every run was unanimous. Latency was well under 500 milliseconds per call -- a fraction of the time the sequential pathfinder took per complete journey.
 
 The confidence with no disruption is worth noting. Jev isn't overconfident. Both branches are valid, Charing Cross is one stop shorter and the moderate confidence reflects a real preference -- but it also signals that Bank isn't a bad choice, which is true.
 
 ## The Right Architecture
 
-A shortest-path algorithm is exact, instant and optimal within whatever constraints you give it. Add a line constraint and it finds the Northern-line-only optimal in the same single call. It has no concept of disruption, live state, or calibrated uncertainty. Those aren't gaps -- they're design choices.
+A shortest-path algorithm is exact, instant and optimal within whatever constraints you give it. Add a line constraint and it finds the Northern-line-only optimal in the same single call. It has no concept of disruption, live state or calibrated uncertainty. Those aren't gaps -- they're design choices.
 
 Jev is the right tool for the judgment calls that sit on top of that: which of these valid options is better right now, given what's happening? That question requires weighing uncertain information and returning a decision with calibrated confidence. That's what Jev is built for.
 

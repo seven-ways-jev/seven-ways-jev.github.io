@@ -17,7 +17,7 @@ Five disruption scenarios cover a range of difficulty:
 - **S001 Display Panels**: port strike affecting all East Asia shipments -- two of three alternatives share the disrupted region
 - **S002 Batteries**: factory fire -- clear trade-off between a faster but lower-capacity alternative and a slower but higher-capacity one
 - **S003 Processors**: export restrictions on East Asia semiconductors -- one of three alternatives is also in the restricted region
-- **S004 Casings**: quality recall -- two alternatives with different speed and cost profiles
+- **S004 Casings**: quality recall -- one faster, cheaper alternative with near-full capacity and one slightly more reliable alternative
 - **S005 Cables**: logistics failure -- all three alternatives have a meaningful weakness, no clean winner
 
 ## One Decision per Scenario
@@ -35,13 +35,15 @@ response = client.system_one(
         "component":        component,
         "primary_supplier": primary["name"],
         "disruption":       disruption,
-        "priority":         "Minimise production delay while managing cost and risk.",
+        "priority":         "Minimize production delay while managing cost and risk.",
     },
     questions={
         "supplier": Choice(
             instructions=(
                 "Which alternative supplier should we activate for this component "
-                "given the disruption and the current state of each alternative?"
+                "given the disruption and the current state of each alternative? "
+                "Consider lead time, reliability, available capacity, cost and "
+                "any shared regional risk with the disrupted primary supplier."
             ),
             criteria=criteria,
         )
@@ -59,15 +61,19 @@ response = client.system_one(
 | S004 | Casings | FrameWorks Poland |
 | S005 | Cables | CableCo USA |
 
+Each scenario was run once for this table. We then repeated every scenario five times with the options listed in the original order and five times reversed, which we come back to below. Confidence scores vary between runs, so we describe the patterns and leave the exact values to the notebook.
+
 ## What the Numbers Tell Us
 
-### S001: Display Panels -- regional risk handled correctly
+### S001: Display Panels -- routing around a shared region
 
-Jev chose VisionParts Europe -- the only alternative outside the disrupted East Asia region -- over two East Asian alternatives that were cheaper and faster. That's the right call: activating a supplier in the same region as the disruption simply moves the problem rather than solving it. The low confidence reflects the real cost of that decision: VisionParts is slower, less reliable and meaningfully more expensive. It's the right choice but not a comfortable one.
+Jev chose VisionParts Europe -- the only alternative outside the disrupted East Asia region -- over two East Asian alternatives that were cheaper and faster. That's a sensible call: activating a supplier in the same region as the disruption simply moves the problem rather than solving it. The scenario text and the instructions both point Jev at regional risk, so this is as much careful reading as discovery.
+
+Confidence was low. Part of that is the trade-off: VisionParts is slower, less reliable and meaningfully more expensive. But the repeat runs below show the number also depends on the order the options are listed in, so we don't read too much into it.
 
 ### S002: Batteries -- speed over capacity
 
-Jev chose EnergyPack USA over VoltSource Japan, prioritising lead time over reliability and available capacity. The moderate confidence reflects a genuine trade-off -- the faster supplier has lower capacity and higher cost. Whether speed or capacity matters more depends on inventory levels and production schedules, context that wasn't in the state. The confidence score signals that this is a reasonable but not obvious call.
+Jev chose EnergyPack USA over VoltSource Japan, prioritizing lead time over reliability and available capacity. The moderate confidence reflects a genuine trade-off -- the faster supplier has lower capacity and higher cost. Whether speed or capacity matters more depends on inventory levels and production schedules, context that wasn't in the state. The confidence score signals that this is a reasonable but not obvious call.
 
 ### S003: Processors -- the clearest decision
 
@@ -75,20 +81,30 @@ Once NexChip South Korea is excluded due to the export restrictions, SiliconWave
 
 ### S004: Casings -- a surprising choice
 
-Jev chose FrameWorks Poland over ShellCraft Mexico despite Mexico being faster, cheaper and at near-full capacity. The deciding factor appears to have been reliability score, where Poland has a slight edge. The low confidence is the honest signal here: most supply chain managers would probably choose Mexico, and Jev's slight preference for Poland isn't strongly supported by the data. This is exactly the decision that should go to a human review before activation.
+Jev chose FrameWorks Poland over ShellCraft Mexico, even though Mexico is faster, cheaper and at near-full capacity. Poland's only edge is a slightly higher reliability score. The scenario's stated priority is to minimize production delay, which points to Mexico, so this is the one choice that cuts against the brief. Confidence was low, and Jev chose Poland every time, in both option orders. This is exactly the decision that should go to human review before activation.
 
-### S005: Cables -- speed wins when everything is compromised
+### S005: Cables -- speed wins, unless the order changes
 
-With all three alternatives having meaningful weaknesses, Jev chose CableCo USA: the fastest option with the highest reliability, but limited capacity and the highest cost. It apparently weighted speed and reliability above capacity and cost, which is a defensible priority when production is stalled. Confidence was higher than expected for an "all compromised" scenario -- Jev had a clear opinion about which trade-off mattered most.
+With all three alternatives having meaningful weaknesses, Jev chose CableCo USA: the fastest option, with the second-highest reliability, but limited capacity and the highest cost. It weighted speed above capacity and cost, which is a defensible priority when production is stalled. In the original order confidence was higher than expected for an "all compromised" scenario.
+
+S005 is also the one scenario where the choice itself depended on the order of the options. With the options reversed, Jev usually chose FlexLink Germany, the most reliable option, and with much lower confidence.
+
+### Option order matters
+
+We repeated every scenario five times with the options in the original order and five times reversed. Within an order the choices were stable. Across orders the choice was identical in four of the five scenarios, but the confidence moved: S001 became much more confident with the options reversed, while S004 and S005 became less so, and S005's choice flipped.
+
+The practical lesson is that the confidence number is sensitive to how the options are presented, so it shouldn't be compared across prompts that list the options differently. If a choice or its confidence changes when you reorder the options, treat that as a reason to send the decision to a human.
 
 ### The confidence scores didn't track our expected difficulty
 
-Our band labels reflected our expectations: clear alternatives should produce high confidence, all-compromised scenarios should produce low confidence. The actual results inverted this -- the all-compromised cables scenario produced the highest confidence while the clear-alternative casings scenario produced the lowest.
+Our band labels reflected our expectations: clear alternatives should produce high confidence, all-compromised scenarios should produce low confidence. In the original order the results inverted this -- the all-compromised cables scenario averaged the highest confidence and the clear-alternative scenarios (batteries and casings) the lowest, while the two regional risk scenarios sat at opposite ends, display panels low and processors very high.
 
-The explanation is that our labels described the supply network structure, not how Jev experienced the decision. When Jev has a strong opinion about which factor matters most -- speed for cables, regional safety for display panels -- it acts on that opinion confidently even when the network situation looks objectively harder. When the factors are genuinely balanced -- casings, where the two alternatives are close on almost everything -- the confidence drops regardless of how the scenario was labeled.
+With the options reversed, the picture changed: cables dropped to the lowest confidence and display panels rose. So the apparent inversion is partly an artifact of option order, and with five scenarios we can't say much more. One reading is that our labels described the network structure rather than how Jev experienced the decision, but we can't separate that from presentation effects.
 
-This is a useful calibration: confidence reflects Jev's internal certainty about the decision, not the objective difficulty of the problem.
+What we can say is that confidence is a signal about the decision as presented, not an objective measure of how hard the problem is.
 
 ## Latency
 
 One Jev call per scenario, completing in well under a second each. In a production supply chain system, these decisions would typically be made under time pressure but not in real time -- a disruption notification triggers an assessment within seconds rather than within milliseconds. The latency is well within any practical response window.
+
+One caution: we didn't check any choice against an expected answer, so the scores show where Jev is unsure, not how often it's right.
