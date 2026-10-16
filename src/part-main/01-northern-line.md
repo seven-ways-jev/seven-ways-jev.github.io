@@ -1,6 +1,6 @@
-# Chapter 1: Transit Routing
+# Chapter 1: Transit routing
 
-## The Northern Line Branch
+## The Northern Line branch
 
 The London Underground's Northern line presents a genuine decision problem. Between Kennington and Euston the line splits into two branches that don't share a single station until they both reach Euston:
 
@@ -13,7 +13,7 @@ This chapter uses that branch decision as a vehicle for exploring two questions.
 
 What we find along the way tells us something useful about where Jev actually earns its place.
 
-## The Data
+## The data
 
 We use the real London Underground dataset: around 350 stations, all lines, with geographic coordinates for each station. We load it into a NetworkX `MultiGraph` directly from CSV files. A `MultiGraph` is essential here because many stations are served by multiple lines and a plain `Graph` would overwrite one line's edges with another's when the same station pair appears more than once.
 
@@ -21,7 +21,7 @@ Each station is a node carrying its coordinates and zone. Each connection is an 
 
 The notebook verifies all branch station names against the graph before running anything.
 
-## Part 1: Jev as a Sequential Planner
+## Part 1: Jev as a sequential planner
 
 Our first approach was to use Jev as a navigation agent: query the graph for the current station's neighbors, pass the live state to Jev, let it pick the next hop, and repeat until we reach Euston.
 
@@ -55,7 +55,7 @@ The mid-journey test makes the point sharply: Jev registered the suspension in i
 
 None of this is a criticism of Jev. It's a mismatch between problem shape and tool design.
 
-## Part 2: Branch Triage
+## Part 2: Branch triage
 
 The fairer test is to ask Jev for one decision: at Kennington, which branch should a passenger take?
 
@@ -74,7 +74,7 @@ This is exactly the behavior TypeSafe describe. With both branches clear, Jev ch
 
 The confidence with no disruption is worth noting. Jev isn't overconfident. Both branches are valid, Charing Cross is one stop shorter and the moderate confidence reflects a real preference -- but it also signals that Bank isn't a bad choice, which is true.
 
-## The Right Architecture
+## The right architecture
 
 A shortest-path algorithm is exact, instant and optimal within whatever constraints you give it. Add a line constraint and it finds the Northern-line-only optimal in the same single call. It has no concept of disruption, live state or calibrated uncertainty. Those aren't gaps -- they're design choices.
 

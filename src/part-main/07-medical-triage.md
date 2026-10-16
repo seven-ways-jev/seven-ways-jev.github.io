@@ -1,6 +1,6 @@
-# Chapter 7: Medical Symptom Triage
+# Chapter 7: Medical symptom triage
 
-## ⚠ Critical Disclaimer
+## ⚠ Critical disclaimer
 
 **This chapter is for illustrative and educational purposes only.**
 
@@ -12,7 +12,7 @@ Any real application of AI in clinical triage requires regulatory approval, clin
 
 ---
 
-## The Problem
+## The problem
 
 A patient contacts a healthcare service. They describe their symptoms. Someone -- or something -- has to decide how urgently they need to be seen.
 
@@ -22,7 +22,7 @@ This chapter uses Jev to assign each patient presentation to one of four care pa
 
 The goal is not to replace clinical triage. It is to illustrate where confidence-scored structured decisions can help: routing clear cases quickly and flagging uncertain ones for human review.
 
-## The Setup
+## The setup
 
 We write 20 fictional patient presentations across four bands:
 
@@ -42,7 +42,7 @@ The four pathways reflect standard triage levels:
 
 The triage instructions include a conservative bias: when in doubt, assign the more urgent pathway. In medical triage, the cost of under-triaging a serious condition is far higher than the cost of over-triaging a minor one.
 
-## One Decision per Presentation
+## One decision per presentation
 
 One `Choice` call per presentation. All available patient context goes into the state.
 
@@ -93,7 +93,7 @@ response = client.system_one(
 | P019 | 25 | Edge | Emergency |
 | P020 | 55 | Edge | Emergency |
 
-## What the Numbers Tell Us
+## What the numbers tell us
 
 The confidence scores change from run to run, so we describe patterns rather than exact values.
 
@@ -101,7 +101,7 @@ The confidence scores change from run to run, so we describe patterns rather tha
 
 All four clear emergencies went to Emergency at essentially maximum confidence. All five clear self-care presentations went to Self-Care with very high confidence. These cases are also the ones we wrote with the strongest cues ("crushing chest pain", "worst of her life", "mild", "rated 3/10"), so their high confidence partly reflects how easy we made them. Real contacts are rarely this tidy.
 
-### P005: coughing up blood
+### P005: Coughing up blood
 
 P005, a 45-year-old male smoker who has coughed up blood for the first time after a three-week cough, went to Urgent Care rather than Emergency, with low confidence. In our reading, this is a serious red flag warranting prompt investigation but not obviously an ambulance case. Jev doesn't explain its choice, so that reading is ours. Jev chose Urgent Care every time we repeated the call, in both option orders. A stable, low-confidence decision is exactly the kind a human should look at.
 
@@ -109,7 +109,7 @@ P005, a 45-year-old male smoker who has coughed up blood for the first time afte
 
 The instruction says to assign the more urgent pathway when in doubt. The results are mixed. Three edge cases went to Emergency (P016, P019 and P020), which is consistent with the bias. But P005, P011 and P014 went to a less urgent pathway while sitting at low confidence, and P017 (below) drifted between three pathways. We also never ran the triage without the instruction, so we can't say how much of any result comes from it. We've also only got our own reading of why Jev chose what it chose: the age and blood thinners for P016, the overlap between panic and cardiac symptoms for P019, and the possible blood pressure link to the blurry vision for P020. Treat those as plausible explanations, not findings.
 
-### P017: the least stable result
+### P017: The least stable result
 
 The 7-year-old with a 39.2C fever for 24 hours had the lowest confidence of any presentation in every run. Its pathway wasn't stable either. In the first run it went to Urgent Care. Across the repeats, the original option order gave Urgent Care in most runs and Self-Care in one, and the reversed order gave Routine in most runs. The input also reads reassuringly (alert, eating and drinking normally, no rash), so this is a hard case. We'd argue that, given the instruction to err toward urgency, a decision that can land on Self-Care at all shouldn't stand without clinical review. The low confidence is the signal that it needs one.
 
@@ -141,7 +141,7 @@ The risk to watch is the opposite case: a presentation that is under-triaged wit
 
 One Jev call per presentation, completing in well under a second each. Twenty presentations triaged in a few seconds.
 
-## The Right Architecture
+## The right architecture
 
 In a real system, every decision would be reviewed by a qualified clinician before any action is taken. The confidence score determines the priority of that review: low-confidence decisions need prompt human attention, whichever pathway Jev chose, and high-confidence decisions can be processed quickly.
 

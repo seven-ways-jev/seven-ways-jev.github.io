@@ -1,6 +1,6 @@
-# Chapter 5: Supply Chain Disruption Response
+# Chapter 5: Supply chain disruption response
 
-## The Problem
+## The problem
 
 A disruption hits your primary supplier. A port strike, a factory fire, an export restriction, a quality recall. You have alternative suppliers, but choosing the right one under pressure requires weighing multiple factors simultaneously: lead time, reliability, current capacity, cost and geographic risk. Get it wrong and production stalls. Get it right and nobody notices.
 
@@ -8,7 +8,7 @@ Rules-based fallback logic -- activate Supplier B if Supplier A is down -- works
 
 This chapter uses Jev to select the best available alternative supplier when a primary supplier is disrupted. One `Choice` call per disruption scenario, with the full current state of each alternative supplier in the criteria. The confidence score indicates how certain Jev is about its choice, which may not correspond to how difficult the supplier situation appears from the outside.
 
-## The Setup
+## The setup
 
 We model Vantara Devices, a fictional consumer electronics manufacturer sourcing five key components: display panels, batteries, processors, casings and cables. Each component has a primary supplier and two or three alternatives. Every supplier carries five attributes: reliability score, lead time, available capacity, cost index relative to the primary and geographic region.
 
@@ -20,7 +20,7 @@ Five disruption scenarios cover a range of difficulty:
 - **S004 Casings**: quality recall -- one faster, cheaper alternative with near-full capacity and one slightly more reliable alternative
 - **S005 Cables**: logistics failure -- all three alternatives have a meaningful weakness, no clean winner
 
-## One Decision per Scenario
+## One decision per scenario
 
 Each scenario produces one `Choice` call. The disruption goes into the state; each alternative supplier becomes a criterion described in plain language.
 
@@ -63,9 +63,9 @@ response = client.system_one(
 
 Each scenario was run once for this table. We then repeated every scenario five times with the options listed in the original order and five times reversed, which we come back to below. Confidence scores vary between runs, so we describe the patterns and leave the exact values to the notebook.
 
-## What the Numbers Tell Us
+## What the numbers tell us
 
-### S001: Display Panels -- routing around a shared region
+### S001: Display panels -- routing around a shared region
 
 Jev chose VisionParts Europe -- the only alternative outside the disrupted East Asia region -- over two East Asian alternatives that were cheaper and faster. That's a sensible call: activating a supplier in the same region as the disruption simply moves the problem rather than solving it. The scenario text and the instructions both point Jev at regional risk, so this is as much careful reading as discovery.
 

@@ -1,6 +1,6 @@
-# Chapter 4: Content Moderation
+# Chapter 4: Content moderation
 
-## The Problem
+## The problem
 
 Platforms that host user-generated content face a decision for every post, comment and review: approve it, flag it for human review or remove it immediately. Get it wrong in either direction and the consequences are real. Miss a genuine threat and someone gets hurt. Remove legitimate content and you've silenced a user, damaged trust and potentially exposed the platform to legal challenge.
 
@@ -8,7 +8,7 @@ Rules-based moderation -- keyword blocklists, regex patterns, account age thresh
 
 This chapter uses Jev to make a three-option decision for each piece of content: approve it, flag it for human review, or remove it. The three-option structure is deliberate. A binary approve/remove decision forces a choice that shouldn't always be forced. The "Flag" option is meant to be where genuine uncertainty goes -- and a confidence score tells you how uncertain Jev actually is about each decision. We test whether it works that way.
 
-## The Setup
+## The setup
 
 We write 20 posts by hand, spread across four bands, each carrying the content itself plus account signals and platform context that a real moderation system would have:
 
@@ -19,7 +19,7 @@ We write 20 posts by hand, spread across four bands, each carrying the content i
 
 Each post carries five signals: platform (Social Media, Community Forum, Product Reviews, Customer Support), account age, prior violation count, verified status and the post content itself.
 
-## One Decision per Post
+## One decision per post
 
 One `Choice` call per post, three options: Approve, Flag or Remove.
 
@@ -73,7 +73,7 @@ response = client.system_one(
 
 Each post was run once for the table. The ten ambiguous and edge posts were also repeated five times, which we come back to below.
 
-## What the Numbers Tell Us
+## What the numbers tell us
 
 ### Perfect at the extremes
 
@@ -113,7 +113,7 @@ The Flag option was used once and with low confidence. In practice, the low-conf
 
 One Jev call per post, each completing in a fraction of a second, so all twenty posts took about five seconds.
 
-## The Practical Takeaway
+## The practical takeaway
 
 The three-option structure is correct in theory but the confidence score is the more informative signal in practice. Rather than routing purely on the decision (Approve / Flag / Remove), a production moderation system should route on decision and confidence together:
 

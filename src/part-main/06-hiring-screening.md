@@ -1,10 +1,10 @@
-# Chapter 6: Hiring Screening
+# Chapter 6: Hiring screening
 
-## Important Disclaimer
+## Important disclaimer
 
 This chapter is illustrative only. Jev is assessing structured summaries against structured requirements -- it is not making final hiring decisions and should not be used as one. Any real implementation of AI-assisted hiring screening requires human oversight, regular bias auditing and compliance with applicable employment law. The candidates and job description in this chapter are entirely fictional.
 
-## The Problem
+## The problem
 
 Recruiting teams face a familiar bottleneck: a role opens, applications arrive faster than anyone can read them and the risk of a bad screen in either direction is real. Miss a strong candidate and they accept another offer. Advance a poor fit and you waste an interviewer's time and the candidate's.
 
@@ -12,7 +12,7 @@ Rules-based screening -- keyword matching on required skills, minimum years of e
 
 This chapter uses Jev to make a three-option screening decision for each candidate: advance them to interview, flag them for human review, or decline. One `Choice` call per candidate, structured CV summary against structured job requirements, a confidence score that tells you how certain the decision is.
 
-## The Setup
+## The setup
 
 One job description -- Senior Backend Engineer, Platform Engineering -- and 20 hand-written candidate CV summaries across four bands:
 
@@ -23,7 +23,7 @@ One job description -- Senior Backend Engineer, Platform Engineering -- and 20 h
 
 Some summaries state their own ambiguities in words (for example, that a gap "may indicate recency concerns"), as a recruiter's screening notes might. Real CVs wouldn't arrive pre-assessed, so part of what Jev does here is read the cue we wrote. Treat the results as an illustration.
 
-## One Decision per Candidate
+## One decision per candidate
 
 One `Choice` call per candidate. The job requirements go into the state alongside the candidate's structured CV summary.
 
@@ -80,7 +80,7 @@ response = client.system_one(
 
 Each candidate was run once for this table. The ten borderline and edge candidates were also repeated five times in each of two option orders, which we come back to below.
 
-## What the Numbers Tell Us
+## What the numbers tell us
 
 ### Review used as a middle ground
 
@@ -122,7 +122,7 @@ One Jev call per candidate, each completing in a fraction of a second, so all tw
 
 A few design choices matter for fairness. We don't pass candidate names to Jev; it sees only the job requirements, the current title, the years of experience and the summary. And some of the signals in our edge cases, such as an employment gap or being overqualified, are commonly associated with caregiving, disability and age. Here they led to Review, not Decline, which is the safer outcome, but a real system should make sure such signals never count against a candidate and should audit its outcomes across groups.
 
-## The Right Architecture
+## The right architecture
 
 Jev screening handles the easy cases automatically and surfaces the hard ones. In the notebook a candidate goes to a human recruiter if Jev chose Review or if confidence falls below a threshold of 0.70. With that rule, nine of the twenty candidates went to a human in our run: all seven Reviews and two low-confidence Declines. One of those, C013, sits right on the line and moves in and out of the human queue between runs. High-confidence Advance decisions move to interview scheduling and the rest are processed automatically.
 

@@ -1,6 +1,6 @@
-# Chapter 3: Financial Fraud Detection
+# Chapter 3: Financial fraud detection
 
-## The Problem
+## The problem
 
 Every payment processor faces the same tension: flag too little and fraudulent transactions go through; flag too much and legitimate customers get blocked and frustrated. Rules-based systems -- velocity checks, amount thresholds, country blocklists -- are fast but brittle. They miss novel fraud patterns and block legitimate transactions that happen to look unusual.
 
@@ -8,7 +8,7 @@ The deeper problem is that fraud detection is inherently a judgment call. A larg
 
 This chapter uses Jev to make a single binary decision for each incoming transaction: flag it for review, or pass it through? One call, two options, a confidence score. The confidence score is what makes this useful in production: a transaction flagged with high confidence goes straight to the fraud queue, while one flagged with lower confidence might warrant a softer intervention -- a one-time password or a confirmation SMS -- rather than an outright block.
 
-## The Setup
+## The setup
 
 We write 20 synthetic transactions by hand, spread across four bands, each carrying nine contextual signals:
 
@@ -23,7 +23,7 @@ We write 20 synthetic transactions by hand, spread across four bands, each carry
 
 The four bands are designed to test the full range of difficulty: clear fraud (multiple stacked risk signals), clear legitimate (established account, normal behavior), ambiguous (one or two flags but not conclusive) and edge cases (unusual but potentially legitimate patterns).
 
-## One Decision per Transaction
+## One decision per transaction
 
 Each transaction goes through a single `Choice` call. All nine signals go into the state so Jev can weigh them together rather than applying rules sequentially.
 
@@ -81,7 +81,7 @@ response = client.system_one(
 
 Each transaction was run once. Confidence scores vary a little between runs, so we describe the patterns here and leave the exact values to the notebook.
 
-## What the Numbers Tell Us
+## What the numbers tell us
 
 ### Clear cases are easy, edge cases are hard
 
@@ -119,7 +119,7 @@ Flagged transactions carried higher confidence than passed ones on average, beca
 
 One Jev call per transaction, each completing in a fraction of a second. That's fast enough to sit in the authorization path of a payment, though whether it fits depends on your latency budget and on how long you can wait for a step-up response.
 
-## The Three-Tier Response
+## The three-tier response
 
 The confidence score enables a more nuanced response than binary flag-or-pass:
 

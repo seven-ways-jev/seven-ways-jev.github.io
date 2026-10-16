@@ -1,6 +1,6 @@
-# Chapter 2: Customer Support Triage
+# Chapter 2: Customer support triage
 
-## The Problem
+## The problem
 
 Every support operation faces the same challenge: an incoming ticket needs to reach the right team at the right priority and it needs to happen fast. Get it wrong and a critical production outage sits in the general queue. A billing dispute gets escalated to the engineering team. A security researcher's responsible disclosure report sits unanswered for three days.
 
@@ -8,7 +8,7 @@ Rules-based routing -- keyword matching, tier lookups, category flags -- works u
 
 This chapter uses Jev to make two sequential decisions for each incoming ticket: which team should handle it and at what priority? Each decision returns a confidence score alongside the answer. That score is the key difference from a rules-based router: instead of silently routing every ticket with equal certainty, the system can use Jev's confidence to flag the ones it's unsure about so a human can review them before they go anywhere.
 
-## The Setup
+## The setup
 
 No external dataset is needed. We write 20 synthetic tickets by hand, spread across four bands designed to test the model across a range of difficulty:
 
@@ -21,7 +21,7 @@ Each ticket has a customer tier (Free, Pro, Enterprise), an issue category, a su
 
 We route to four teams: Billing, Technical, Account Management and General Support. Priority levels are Critical, High, Medium and Low.
 
-## Two Decisions per Ticket
+## Two decisions per ticket
 
 Each ticket goes through two sequential `Choice` calls. The team decision uses the full ticket context. The priority decision adds the team assignment to the state so Jev can factor in who will be handling it before deciding how urgently they need to act.
 
@@ -77,7 +77,7 @@ priority_response = client.system_one(
 
 Each ticket was run once. Confidence scores vary a little between runs, so we describe the patterns here and leave the exact values to the notebook.
 
-## What the Numbers Tell Us
+## What the numbers tell us
 
 ### Team routing is a little more certain than priority
 
@@ -113,7 +113,7 @@ These are the tickets a human reviewer should see before they go anywhere.
 
 Two Jev calls per ticket, running sequentially. Each ticket took roughly half a second, so all twenty completed in about ten seconds. In a production system the two calls could run in parallel for tickets where team and priority are independent, cutting total time roughly in half. Or the priority call could be deferred -- route the ticket immediately on team, then assign priority asynchronously before the agent picks it up.
 
-## The Confidence Threshold
+## The confidence threshold
 
 The threshold is a business decision, not a technical one. Lower it and more tickets get human review -- slower but fewer routing errors. Raise it and more tickets route automatically -- faster but more misrouted ones. The right number depends on the cost of a wrong routing decision in your operation.
 
