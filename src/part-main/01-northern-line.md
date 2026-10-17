@@ -1,4 +1,4 @@
-# Chapter 1: Transit routing
+# Chapter 1: Transit Routing
 
 ## The Northern Line branch
 

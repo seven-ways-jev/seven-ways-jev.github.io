@@ -1,4 +1,4 @@
-# Chapter 7: Medical symptom triage
+# Chapter 7: Medical Symptom Triage
 
 ## ⚠ Critical disclaimer
 

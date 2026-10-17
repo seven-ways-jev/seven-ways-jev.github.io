@@ -1,4 +1,4 @@
-# Chapter 4: Content moderation
+# Chapter 4: Content Moderation
 
 ## The problem
 

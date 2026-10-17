@@ -1,4 +1,4 @@
-# Chapter 3: Financial fraud detection
+# Chapter 3: Financial Fraud Detection
 
 ## The problem
 

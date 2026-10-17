@@ -1,4 +1,4 @@
-# Chapter 2: Customer support triage
+# Chapter 2: Customer Support Triage
 
 ## The problem
 

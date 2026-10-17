@@ -1,4 +1,4 @@
-# Chapter 5: Supply chain disruption response
+# Chapter 5: Supply Chain Disruption Response
 
 ## The problem
 

@@ -1,4 +1,4 @@
-# Chapter 6: Hiring screening
+# Chapter 6: Hiring Screening
 
 ## Important disclaimer
 
